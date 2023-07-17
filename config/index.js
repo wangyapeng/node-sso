@@ -8,4 +8,9 @@ const redisConfig = { // redis配置
     prefix: 'koa:session:'     // redis key前缀
 }   // redis配置
 
-module.exports = { redisConfig }
+
+const tokenConfig = {
+    secret: "xxxx33323-secret-key"
+}
+
+module.exports = { redisConfig, tokenConfig }
