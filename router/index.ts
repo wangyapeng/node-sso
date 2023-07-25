@@ -9,10 +9,9 @@ router.get('/', async (ctx: Context) => {
     ctx.body = '<h1>hello world!</h1>';
 })
 
-console.log(UserController)
-
 router.post('/auth/login', UserController.login);
 router.post('/auth/register', UserController.register);
 router.post('/auth/getUserInfo', UserController.getUserInfo);
+router.post('/auth/refreshToken', UserController.refreshToken);
 
 module.exports = router;

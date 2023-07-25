@@ -13,7 +13,6 @@ app.use(koaBody())
 */
 //@ts-ignore
 app.use(async (ctx: Context,next: Next) => {
-    console.log(ctx.url, ctx.status);
     if (ctx.status == 404){
         ctx.status = 404;
         ctx.body = '404页面';
@@ -21,14 +20,13 @@ app.use(async (ctx: Context,next: Next) => {
         console.log(ctx.url)
     }
 
-    if (ctx.url.includes('register') || ctx.url.includes('login')) {
+    if (ctx.url.includes('register') || ctx.url.includes('login') || ctx.url.includes('refreshToken')) {
         await next();
     } else {
         //@ts-ignore
-        var ret = await AuthMideWare.vertifyToken(ctx?.request?.body?.token);
+        const token = ctx.request.header['authorization'].replace('Bear','').trim();
+        var ret = await AuthMideWare.vertifyToken(token);
         if (ret) {
-            ctx.status = 200;
-            ctx.body = 'just this user login';
             await next();
         } else {
             ctx.status = 401;

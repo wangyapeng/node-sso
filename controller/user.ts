@@ -16,7 +16,6 @@ export default class UserController {
 
     //@ts-ignore
     const { name, email, password } = ctx.request.body;
-    console.log(ctx.request)
     newUser.name = name;
     newUser.email = email;
     newUser.password = await argon2.hash(password);
@@ -37,18 +36,20 @@ export default class UserController {
 
   public static async getUserInfo(ctx: Context) {
     //@ts-ignore
-    const { id, name } = ctx.request.body;
+    const { id } = ctx.request.body;
+    //@ts-ignore
+    const token = ctx.request.header['authorization'].replace('Bear','').trim();
+    var decoded = jwt.verify(token, tokenConfig.secret);
     const userRepository = AppDataSource.getRepository(User);
-    const userInfo = await userRepository.findOneBy({name: name})
-
+    const userInfo = await userRepository.findOneBy({id: id || decoded.id});
     if (userInfo) {
-       ctx.status = 200;
-       ctx.body = {
-        id: userInfo.id,
-        name: userInfo.name,
-        email: userInfo.email
-       }
-       return
+        ctx.status = 200;
+        ctx.body = {
+          id: userInfo.id,
+          name: userInfo.name,
+          email: userInfo.email
+        }
+        return
     }
     ctx.status = 200;
     ctx.body = '用户登录成功，暂未查询到用户信息';
@@ -88,11 +89,62 @@ export default class UserController {
         expiresIn: 60 * 60, // 24 hours
       });
 
+    const refreshToken = jwt.sign({ id: egzist[0].id, tokenType: "refresh" },
+      tokenConfig.secret,
+      {
+        algorithm: 'HS256',
+        allowInsecureKeySizes: true,
+        expiresIn: 60 * 60 * 24 * 30,
+    });
+
     ctx.status = 200;
     ctx.body = {
       id: egzist[0].id,
       name: egzist[0].name,
+      refreshToken,
       token,
     };
+  }
+
+  /**
+   * 刷新token
+   */
+  public static async refreshToken(ctx: Context) {
+    //@ts-ignore
+    const {token, refreshToken} = ctx.request.body;
+    var decoded = jwt.verify(refreshToken, tokenConfig.secret);
+    
+    // token 的有效期为60分钟，过期需要刷新
+    if (new Date(decoded.exp * 1000).getTime() > Date.now()) {
+      const userRepository = AppDataSource.getRepository(User);
+      const egzist = await userRepository.findBy({id: decoded.id});
+      const token = jwt.sign({ id: egzist[0].id },
+        tokenConfig.secret,
+        {
+          algorithm: 'HS256',
+          allowInsecureKeySizes: true,
+          expiresIn: 60 * 60, // 24 hours
+        });
+        const refreshToken = jwt.sign({ id: egzist[0].id, tokenType: "refresh" },
+          tokenConfig.secret,
+          {
+            algorithm: 'HS256',
+            allowInsecureKeySizes: true,
+            expiresIn: 60 * 60 * 24 * 30,
+        });
+        ctx.status = 200;
+        ctx.body = {
+          id: egzist[0].id,
+          email: egzist[0].email,
+          token,
+          refreshToken
+        }
+    } else {
+      ctx.status = 10010;
+      ctx.body = {
+        errCode: 10010,
+        errMsg:'登录过期'
+      }
+    }
   }
 }

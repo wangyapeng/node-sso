@@ -4,7 +4,7 @@
   "description": "> 在node.js 中实践sso 鉴权中心",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon --watch src -e js,ts,tsx --exec ts-node app.ts"
+    "dev": "nodemon --watch ./ -e ts,tsx --exec ts-node app.ts"
   },
   "repository": {
     "type": "git",
