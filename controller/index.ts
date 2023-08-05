@@ -1,15 +1,10 @@
+import { mysqlConfig } from "../config"
 import { User } from "../entity/user"
 import { DataSource } from "typeorm"
+
 const AppDataSource = new DataSource({
-    type: "mysql",
-    host: "localhost",
-    port: 3306,
-    username: "root",
-    password: "12345678",
-    database: "nodemysql",
     entities: [User],
-    synchronize: true,
-    logging: false,
+    ...mysqlConfig as any
 })
 
 // to initialize initial connection with the database, register all entities

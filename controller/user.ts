@@ -106,6 +106,25 @@ export default class UserController {
     };
   }
 
+  public static async verityToken(ctx: Context) {
+    //@ts-ignore
+    const { token, refreshToken } = ctx.request.body;
+    var ret = await AuthMideWare.vertifyToken(token);
+    if (ret) {
+      ctx.status = 200;
+      ctx.body = {
+        success: true,
+        data: '校验成功'
+      }
+    } else {
+        ctx.status = 401;
+        ctx.body = {
+          success: false,
+          errorMsg: 'token校验失败'
+        }
+    }
+  }
+
   /**
    * 刷新token
    */
@@ -113,7 +132,7 @@ export default class UserController {
     //@ts-ignore
     const {token, refreshToken} = ctx.request.body;
     var decoded = jwt.verify(refreshToken, tokenConfig.secret);
-    
+
     // token 的有效期为60分钟，过期需要刷新
     if (new Date(decoded.exp * 1000).getTime() > Date.now()) {
       const userRepository = AppDataSource.getRepository(User);

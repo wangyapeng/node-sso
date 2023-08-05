@@ -1,4 +1,3 @@
-
 const redisConfig = { // redis配置
     host: 'localhost',          // redis host
     port: 6379,                 // redis port
@@ -6,11 +5,21 @@ const redisConfig = { // redis配置
     password: '',              // redis密码
     ttl: 60 * 60 * 24 * 30,    // redis过期时间
     prefix: 'koa:session:'     // redis key前缀
-}   // redis配置
+}
 
+const mysqlConfig = {
+    type: "mysql",
+    host: "localhost",
+    port: 3306,
+    username: "root",
+    password: "12345678",
+    database: "nodemysql",
+    synchronize: true,
+    logging: false,
+}
 
 const tokenConfig = {
     secret: "xxxx33323-secret-key"
 }
 
-module.exports = { redisConfig, tokenConfig }
+module.exports = { redisConfig, tokenConfig, mysqlConfig }

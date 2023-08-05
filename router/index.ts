@@ -11,7 +11,7 @@ router.get('/', async (ctx: Context) => {
 
 router.post('/auth/login', UserController.login);
 router.post('/auth/register', UserController.register);
-router.post('/auth/getUserInfo', UserController.getUserInfo);
 router.post('/auth/refreshToken', UserController.refreshToken);
+router.post('/auth/verityToken', UserController.verityToken);
 
 module.exports = router;
