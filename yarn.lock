@@ -1009,6 +1009,11 @@ koa-convert@^2.0.0:
     co "^4.6.0"
     koa-compose "^4.1.0"
 
+koa-cookie@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.npmmirror.com/koa-cookie/-/koa-cookie-1.0.0.tgz#7c79723dd03b97abcfe430028b700bd47a36dafb"
+  integrity sha512-MCAek9ttjFFUHx1oUDxPdzTgfllOR1o/7S1OEHdmyBoZ6Kt8V1+J4JWq0RCjxD2JDhKHWZGdoLqBTRWaYOoF6Q==
+
 koa-generic-session@^2.3.0:
   version "2.3.0"
   resolved "https://registry.npmmirror.com/koa-generic-session/-/koa-generic-session-2.3.0.tgz#46c6cf4614d875aa0c6862e2132618d90bc3017b"

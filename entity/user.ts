@@ -1,3 +1,6 @@
+import { JoinColumn, JoinTable, ManyToMany, ManyToOne } from "typeorm";
+import { Tenant } from "./tenant";
+
 const { Entity, Column, PrimaryGeneratedColumn } = require('typeorm');
 
 

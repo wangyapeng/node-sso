@@ -1,9 +1,11 @@
+import { Tenant } from "../entity/tenant"
 import { mysqlConfig } from "../config"
 import { User } from "../entity/user"
 import { DataSource } from "typeorm"
+import { Account } from "../entity/account"
 
 const AppDataSource = new DataSource({
-    entities: [User],
+    entities: [User, Tenant, Account],
     ...mysqlConfig as any
 })
 

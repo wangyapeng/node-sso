@@ -5,6 +5,9 @@ import { User } from '../entity/user';
 import { AppDataSource } from '.';
 import { tokenConfig } from '../config';
 import AuthMideWare from '../service/auth';
+import { Tenant } from '../entity/tenant';
+import { EntityManager } from 'typeorm';
+import UserService from '../service/user';
 
 var jwt = require("jsonwebtoken");
 var bcrypt = require("bcryptjs");
@@ -21,7 +24,6 @@ export default class UserController {
     newUser.password = await argon2.hash(password);
 
     const egzist = await userRepository.findOneBy({email: newUser.email})
-    console.log("egzist ", egzist);
     if (egzist) {
       ctx.status = 409;
       ctx.body = 'email already exists';
@@ -40,19 +42,17 @@ export default class UserController {
     //@ts-ignore
     const token = ctx.request.header['authorization'].replace('Bear','').trim();
     var decoded = jwt.verify(token, tokenConfig.secret);
-    const userRepository = AppDataSource.getRepository(User);
-    const userInfo = await userRepository.findOneBy({id: id || decoded.id});
-    if (userInfo) {
-        ctx.status = 200;
-        ctx.body = {
-          id: userInfo.id,
-          name: userInfo.name,
-          email: userInfo.email
-        }
-        return
+    try {
+      const userInfo = await UserService.requestUserInfo(id || decoded.id);
+      if (userInfo) {
+          ctx.status = 200;
+          ctx.body = userInfo
+          return
+      }
+    } catch(e) {
+      ctx.status = 401;
+      ctx.body = e.message;
     }
-    ctx.status = 200;
-    ctx.body = '用户登录成功，暂未查询到用户信息';
   }
 
 
@@ -63,10 +63,11 @@ export default class UserController {
     const userRepository = AppDataSource.getRepository(User);
     const egzist = await userRepository.findBy({email: email});
 
-    if (!egzist) {
+    if (!egzist[0] || egzist.length === 0) {
       ctx.body = 'user info is not egisit, please regist';
       return
     }
+
     var passwordIsValid = await argon2.verify(
       egzist[0].password,
       password
@@ -80,13 +81,13 @@ export default class UserController {
       };
       return;
     }
-
+    const id = egzist[0].id;
     const token = jwt.sign({ id: egzist[0].id },
       tokenConfig.secret,
       {
         algorithm: 'HS256',
         allowInsecureKeySizes: true,
-        expiresIn: 60 * 60, // 24 hours
+        expiresIn: 60 * 60 * 24 * 29,
       });
 
     const refreshToken = jwt.sign({ id: egzist[0].id, tokenType: "refresh" },
@@ -97,6 +98,27 @@ export default class UserController {
         expiresIn: 60 * 60 * 24 * 30,
     });
 
+    ctx.cookies.set("login", "true", {
+      domain: 'dq.com',
+      path: "/", // 有效范围
+      httpOnly: false, // 只能在服务器修改
+      maxAge: 24 * 60 * 60 * 1000,
+    })
+
+    ctx.cookies.set('userId',`${id}`, {
+      domain: 'dq.com',
+      path: "/", // 有效范围
+      httpOnly: false, // 只能在服务器修改
+      maxAge: 24 * 60 * 60 * 1000,
+    })
+
+    ctx.cookies.set('userToken',`${token}`, {
+      domain: 'dq.com',
+      path: "/", // 有效范围
+      httpOnly: false, // 只能在服务器修改
+      maxAge: 24 * 60 * 60 * 1000,
+    })
+
     ctx.status = 200;
     ctx.body = {
       id: egzist[0].id,
@@ -104,6 +126,24 @@ export default class UserController {
       refreshToken,
       token,
     };
+  }
+
+  /**
+   * logout
+   * @param ctx
+   */
+  public static async logout(ctx: Context) {
+    ctx.cookies.set("login", "false", {
+      path: "/", // 有效范围
+      domain: 'dq.com',
+      httpOnly: false, // 只能在服务器修改
+      maxAge: 0,
+    })
+    ctx.status = 200;
+    ctx.body = {
+      success: true,
+      message: "登出成功"
+    }
   }
 
   public static async verityToken(ctx: Context) {
