@@ -34,9 +34,9 @@ export async function getTeanantInfo(ctx: Context) {
 
 export async function putTenantInfo(ctx: Context & any) {
     const body = ctx.request.body;
-    const { id } = ctx.request.query;
+    const { id, userId } = ctx.request.query;
     try {
-        const res = await TenantService.putTenantInfo(id, body);
+        const res = await TenantService.putTenantInfo(id, body, userId);
         ctx.status = 200;
         ctx.body = {
             success: true,

@@ -2,23 +2,33 @@
     "compilerOptions": {
         "target": "ES2017",
         "module": "commonjs",
-        "lib": ["es6"],
         "sourceMap": true,
         "allowJs": true,
+        "alwaysStrict": true,
+        "allowUnreachableCode": false,
+        "allowUnusedLabels": false,
         "outDir": "dist",
         "noImplicitAny": true,
         "strictNullChecks": false,
+        "declaration": true,
+        // "declarationDir": "./dist/types",
+        "declarationMap": true,
         "moduleResolution": "node",
-        "baseUrl": ".",
+        "baseUrl": "./",
         "paths": {
+          "@service/*": ["service/*"],
+          "@controller/*": ["controller/*"],
           "*": ["node_modules/*"]
         },
+        "lib": ["es6", "es2021"],
         "allowSyntheticDefaultImports": true,
         "esModuleInterop": true,
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
         "skipLibCheck": true,
-        "forceConsistentCasingInFileNames": true
+        "forceConsistentCasingInFileNames": true,
+        "pretty": true,
+        "listEmittedFiles": true
       },
-      "exclude": ["node_modules", "**/*.spec.ts"],
+      "exclude": ["node_modules", "dist","**/*.spec.ts"],
 }

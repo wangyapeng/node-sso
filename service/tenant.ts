@@ -1,21 +1,34 @@
+import { User } from "../entity/user";
 import { AppDataSource } from "../controller";
 import { Tenant } from "../entity/tenant";
 
 class TenantService {
 
-    public static async putTenantInfo(id: any, data: any) {
+    public static async putTenantInfo(id: any, data: any, userId?:any) {
         const repository = AppDataSource.getRepository(Tenant);
-        if (id) {
-            var tenant = repository.findOne(id);
-            tenant = data;
-            return tenant;
-        } else {
-            const tenant = new Tenant();
+        const userRepository = AppDataSource.getRepository(User);
+        try {
+            if (id) {
+                var tenant = await repository.findOne(id) as any;
+                if (tenant) {
+                    Object.keys(data).forEach(k => tenant[k] = data[k])
+                    const res = await repository.save(tenant);
+                    return res;
+                }
+            } else {
+                const tenant = new Tenant() as any;
 
-            //@ts-ignore
-            Object.keys(data).forEach(k => tenant[k] = data[k])
-            const res = await repository.save(tenant);
-            return res;
+                Object.keys(data).forEach(k => tenant[k] = data[k])
+                const user = await userRepository.findOneBy({id: userId});
+                if (!user) return false;
+                tenant.users = [];
+                tenant.users.push(user)
+                const res = await repository.save(tenant);
+                return res;
+            }
+        } catch(e) {
+            console.error(e);
+            throw Error(e);
         }
     }
 }

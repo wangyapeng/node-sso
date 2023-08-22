@@ -8,20 +8,18 @@ module.exports = (option: any) => async (ctx: Context, next: Next) => {
         if (exclude.some((it: any) => ctx.url.includes(it))) {
             await next();
         } else {
-            //@ts-ignore
             const token = ctx.request.header['authorization'].replace('Bear','').trim();
             var ret = await AuthMideWare.vertifyToken(token);
             if (ret) {
-                console.log(ret)
                 await next();
             } else {
-                ctx.status = 500;
-                ctx.body = "error";
+                ctx.status = 401;
+                ctx.body = "not login";
             }
         }
     } catch (e) {
         ctx.status = 500;
-        ctx.body = "error";
+        ctx.body = e.message;
     }
 };
 

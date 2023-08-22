@@ -5,13 +5,20 @@ const router = require('./router');
 const cookie = require('koa-cookie');
 const koaBody = require('koa-body');
 const verifyToken = require('./middleware/verifyToken');
+const logger = require('koa-logger')
+
+app.use(logger())
+
+app.use(koaBody())
+
+app.use(router.routes()).use(router.allowedMethods());
 
 app.use(cookie.default())
+
 app.use(verifyToken({
-    exclude: ['/', 'login','Token','register']
+    exclude: ['login','Token','register']
 }))
-app.use(koaBody())
-app.use(router.routes()).use(router.allowedMethods());
+
 app.listen(9002, () => {
     console.log('Server is running');
 })

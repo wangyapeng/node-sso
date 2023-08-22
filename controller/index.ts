@@ -1,13 +1,17 @@
 import { Tenant } from "../entity/tenant"
-import { mysqlConfig } from "../config"
+import { mysqlConfig, redisConfig } from "../config"
 import { User } from "../entity/user"
 import { DataSource } from "typeorm"
 import { Account } from "../entity/account"
+const cwd = process.cwd();
 
 const AppDataSource = new DataSource({
-    entities: [User, Tenant, Account],
+    entities: [ cwd +"/entity/*{.js,.ts}"],
     ...mysqlConfig as any
 })
+
+const Redis = require('ioredis');
+const RedisDataSource = new Redis(redisConfig);
 
 // to initialize initial connection with the database, register all entities
 // and "synchronize" database schema, call "initialize()" method of a newly created database
@@ -19,4 +23,4 @@ AppDataSource.initialize()
     })
     .catch((error) => console.log(error))
 
-export { AppDataSource }
+export { AppDataSource,  RedisDataSource}
