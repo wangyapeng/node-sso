@@ -3,6 +3,7 @@ import { AppDataSource } from "../controller";
 import { Context } from "koa";
 import AuthMideWare from "../service/auth";
 import OrderService from "../service/order";
+import UserService from "../service/user";
 
 export async function openTrialOrder(ctx: Context & any) {
     const { userId, tenantId, appId } = ctx.request.body;
@@ -59,6 +60,23 @@ export async function getTrailOrder(ctx: Context) {
         }
     }
 }
+
+
+export async function generateTokenByCode(ctx: Context) {
+    const params = ctx.request.query;
+
+    const token = UserService.generateToken(params, 1000 * 60 * 60 * 24 * 29);
+    ctx.status = 200;
+    ctx.body = token;
+}
+
+export async function verityAppToken(ctx: Context & any) {
+    const { token } = ctx.request.body;
+    const res = await AuthMideWare.verityAppToken(token);
+    ctx.status = 200;
+    ctx.body = res
+}
+
 
 
 export async function authorizeByJsonp(ctx: Context) {

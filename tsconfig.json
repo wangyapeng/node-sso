@@ -14,11 +14,9 @@
         // "declarationDir": "./dist/types",
         "declarationMap": true,
         "moduleResolution": "node",
-        "baseUrl": "./",
+        "baseUrl": ".",
         "paths": {
-          "@service/*": ["service/*"],
-          "@controller/*": ["controller/*"],
-          "*": ["node_modules/*"]
+          "@/*":["./*"],
         },
         "lib": ["es6", "es2021"],
         "allowSyntheticDefaultImports": true,

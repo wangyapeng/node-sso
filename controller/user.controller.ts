@@ -113,6 +113,24 @@ export default class UserController {
       httpOnly: false, // 只能在服务器修改
       maxAge: 0,
     });
+    ctx.cookies.set("userId", null, {
+      path: "/", // 有效范围
+      domain: "dq.com",
+      httpOnly: false, // 只能在服务器修改
+      maxAge: 0,
+    });
+    ctx.cookies.set("userToken", null, {
+      path: "/", // 有效范围
+      domain: "dq.com",
+      httpOnly: false, // 只能在服务器修改
+      maxAge: 0,
+    });
+    ctx.cookies.set("appUserToken", null, {
+      path: "/", // 有效范围
+      domain: "dq.com",
+      httpOnly: false, // 只能在服务器修改
+      maxAge: 0,
+    });
     ctx.status = 200;
     ctx.body = {
       success: true,
@@ -121,16 +139,27 @@ export default class UserController {
   }
 
   public static async verityToken(ctx: Context) {
-    //@ts-ignore
-    const { token, refreshToken } = ctx.request.body;
-    var ret = await AuthMideWare.vertifyToken(token);
-    if (ret) {
-      ctx.status = 200;
-      ctx.body = {
-        success: true,
-        data: "校验成功",
-      };
-    } else {
+    try {
+      console.log(ctx.request.header['authorization'], ctx.request.header)
+      if (!ctx.request.header['authorization']) {
+        ctx.status = 401;
+        ctx.code = 401;
+        ctx.body = {
+          success: false,
+          errorMsg: "未发现token信息",
+        };
+        return
+      }
+      const token = ctx.request.header['authorization'].replace('Bear','').trim();
+      var ret = await AuthMideWare.vertifyToken(token);
+      if (ret) {
+        ctx.status = 200;
+        ctx.body = {
+          success: true,
+          data: "校验成功",
+        };
+      }
+    } catch(e) {
       ctx.status = 401;
       ctx.body = {
         success: false,

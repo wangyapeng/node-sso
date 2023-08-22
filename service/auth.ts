@@ -70,6 +70,44 @@ export default class AuthMideWare {
     }
 
 
+    public static async verityAppToken(token: any) {
+        try {
+            var decoded = jwt.verify(token, tokenConfig.secret);
+            const userRepository = AppDataSource.getRepository(User);
+            const authRepository = AppDataSource.getRepository(Auth);
+            const userInfo = await userRepository.findOneBy({id: decoded.userId});
+            if (!userInfo) {
+                return Promise.resolve(false);
+            }
+
+            const value = decoded.appKey;
+            const productAppKey = decoded.appKey;
+            const domainName = decoded.domainName;
+            const bookCode = decoded.bookCode;
+            const auth = await authRepository.findOneBy({
+                userId: decoded.userId,
+                productAppKey,
+                domainName,
+                bookCode,
+            })
+
+            if (!auth) {
+                return false;
+            }
+
+            // token 的有效期为60分钟，过期需要刷新
+            if (new Date(decoded.exp * 1000).getTime() > Date.now()) {
+                return Promise.resolve(userInfo);
+            }
+
+            return Promise.resolve(false);;
+        } catch(err) {
+            console.error(err)
+            return Promise.resolve(false);
+        }
+    }
+
+
     public static async genarateAuthJson(params: any) {
         console.log(params);
         const obj = params.split('&');
