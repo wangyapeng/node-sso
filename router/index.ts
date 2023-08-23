@@ -12,9 +12,9 @@ router.get('/auth/logout', UserController.logout);
 router.post('/auth/register', UserController.register);
 router.post('/auth/getUserInfo', UserController.getUserInfo);
 router.post('/auth/refreshToken', UserController.refreshToken);
-router.post('/auth/verityToken', UserController.verityToken);
+router.get('/auth/verityToken', UserController.verityToken);
 
-router.post('/auth/verityAppToken', verityAppToken);
+router.get('/auth/verityAppToken', verityAppToken);
 router.get('/auth/token',generateTokenByCode)
 
 router.get('/auth/getTrialOrder', getTrailOrder)

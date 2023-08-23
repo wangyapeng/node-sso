@@ -71,7 +71,7 @@ export async function generateTokenByCode(ctx: Context) {
 }
 
 export async function verityAppToken(ctx: Context & any) {
-    const { token } = ctx.request.body;
+    const { token } = ctx.request.query;
     const res = await AuthMideWare.verityAppToken(token);
     ctx.status = 200;
     ctx.body = res

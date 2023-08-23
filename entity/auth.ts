@@ -1,4 +1,4 @@
-import { CreateDateColumn, JoinColumn, OneToOne } from "typeorm";
+import { CreateDateColumn, JoinColumn, ManyToOne, OneToOne } from "typeorm";
 import { App } from "./app";
 
 const { Entity, Column, PrimaryGeneratedColumn } = require('typeorm');
@@ -23,7 +23,7 @@ export class Auth {
     @Column()
     tenantId: string;
 
-    @OneToOne(type => App)
+    @ManyToOne(type => App)
     @JoinColumn()
     app: App
 

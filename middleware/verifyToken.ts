@@ -7,10 +7,12 @@ module.exports = (option: any) => async (ctx: Context, next: Next) => {
     if (exclude.some((it: any) => ctx.url.includes(it))) {
         await next();
     } else {
-        if (!ctx.request.header['authorization']) {
+        const hasToken = ctx.request.header['authorization'] || ctx.request.query?.token;
+        const bear = ctx.request.header['authorization'].replace('Bear','');
+        const token = bear.trim() || ctx.request.query?.token;
+        if (!token) {
             throw new Errors.AuthFailed('没有授权token', 401);
         }
-        const token = ctx.request.header['authorization'].replace('Bear','').trim();
         if (token === 'null') {
             throw new Errors.AuthFailed('未授权', 401);
         }

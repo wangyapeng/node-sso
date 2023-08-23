@@ -140,8 +140,10 @@ export default class UserController {
 
   public static async verityToken(ctx: Context) {
     try {
-      console.log(ctx.request.header['authorization'], ctx.request.header)
-      if (!ctx.request.header['authorization']) {
+      const hasToken = ctx.request.header['authorization'] || ctx.request.query?.token;
+      const bear = ctx.request.header['authorization'].replace('Bear','');
+      const token = bear.trim() || ctx.request.query?.token;
+      if (!token) {
         ctx.status = 401;
         ctx.code = 401;
         ctx.body = {
@@ -150,7 +152,6 @@ export default class UserController {
         };
         return
       }
-      const token = ctx.request.header['authorization'].replace('Bear','').trim();
       var ret = await AuthMideWare.vertifyToken(token);
       if (ret) {
         ctx.status = 200;
