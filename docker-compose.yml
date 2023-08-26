@@ -1,0 +1,11 @@
+varsion: "3"
+
+services:
+  web: 
+    build: '.'
+    prots:
+      - "3000-9002"
+  redis:
+    image: "redis"
+  mysql:
+    image: "mysql"

@@ -1,0 +1,9 @@
+/dist
+/node_modules
+logs
+yarn-error.log*
+.vscode/*
+*.launch
+*.log
+*.md
+*.devcontaier
