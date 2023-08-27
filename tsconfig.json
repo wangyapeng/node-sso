@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
-        "target": "ES2017",
-        "module": "commonjs",
+        "target": "ESNext",
+        "module": "ESNext",
         "sourceMap": true,
         "allowJs": true,
         "alwaysStrict": true,
@@ -16,7 +16,7 @@
         "moduleResolution": "node",
         "baseUrl": ".",
         "paths": {
-          "@/*":["./*"],
+          "@/*": ["src/*"]
         },
         "lib": ["es6", "es2021"],
         "allowSyntheticDefaultImports": true,
@@ -28,5 +28,15 @@
         "pretty": true,
         "listEmittedFiles": true
       },
+      "include": [
+        "server/controller/*.ts",
+        "server/router/*.ts",
+        "server/service/*.ts",
+        "server/entity/*.ts",
+        "server/middleware/*.ts",
+        "exception.ts",
+        "app-prd.ts"
+      ],
       "exclude": ["node_modules", "dist","**/*.spec.ts"],
+      "references": [{ "path": "./tsconfig.node.json" }]
 }

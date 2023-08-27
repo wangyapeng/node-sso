@@ -26,6 +26,15 @@ const excludeRoute = [
 import path from "path";
 import views from "koa-views";
 
+import sendFile from "koa-send";
+
+//@ts-ignore
+//@ts-nocheck
+import { render } from "./www/server/entry-server.js";
+
+const rootDir = process.cwd()
+const resolve = (p: any) => path.resolve(rootDir, p);
+
 import { createServer as createViteServer } from "vite";
 const __dirname = path.resolve();
 const start = async () => {
@@ -64,29 +73,32 @@ const start = async () => {
   // 注册 vite 的 Connect 实例作为中间件（注意：vite.middlewares 是一个 Connect 实例）
   app.use(koaConnect(viteServer.middlewares));
 
+   console.log("----->",resolve("dist/www/client/index.html"))
+   //同步读取文件
+   const template = fs.readFileSync(resolve("dist/www/client/index.html"), "utf-8");
+   const manifest = fs.readFileSync(
+     resolve("dist/www/client/ssr-manifest.json"),
+     "utf-8"
+   );
+   
+  const clientRoot = resolve("dist/www/client");
+
   app.use(async (ctx: Context) => {
-    try {
-      // 1. 获取index.html
-      let template = fs.readFileSync(path.resolve(__dirname, 'index.html'), 'utf-8');
-
-      // 2. 应用 Vite HTML 转换。这将会注入 Vite HMR 客户端，
-      template = await viteServer.transformIndexHtml(ctx.path, template);
-
-      // 3. 加载服务器入口, vite.ssrLoadModule 将自动转换
-      const { render } = await viteServer.ssrLoadModule('/src/entry-server.ts');
-
-      //  4. 渲染应用的 HTML
-      const [renderedHtml, state] = await render(ctx, {});
-
-      const html = template.replace('<!--app-html-->', renderedHtml).replace('<!--pinia-state-->', state);
-
-      ctx.type = 'text/html';
-      ctx.body = html;
-    } catch (e) {
-      viteServer && viteServer.ssrFixStacktrace(e);
-      console.log(e.stack);
-      ctx.throw(500, e.stack);
+    // 请求的是静态资源 或者/favicon.ico
+    if (ctx.path.startsWith("/assets")) {
+      await sendFile(ctx as any, ctx.path, { root: clientRoot });
+      return;
     }
+
+    const [renderedHtml, state, preloadLinks] = await render(ctx, manifest);
+
+    const html = template
+      .replace("<!--preload-links-->", preloadLinks)
+      .replace("<!--pinia-state-->", state)
+      .replace("<!--app-html-->", renderedHtml);
+
+    ctx.type = "text/html";
+    ctx.body = html;
   });
 
   app.use(koaStatic(__dirname + "static"));
@@ -96,7 +108,7 @@ const start = async () => {
 
   app.use(router.routes()).use(router.allowedMethods());
 
-  app.listen(9002, () => {
+  app.listen(8080, () => {
     console.log("Server is running");
   });
 };

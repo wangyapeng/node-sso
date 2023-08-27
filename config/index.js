@@ -29,4 +29,6 @@ const clientKey = {
   },
 };
 
-module.exports = { clientKey, redisConfig, tokenConfig, mysqlConfig };
+export {
+  clientKey, redisConfig, tokenConfig, mysqlConfig
+}
