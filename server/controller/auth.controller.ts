@@ -1,11 +1,12 @@
 import { App } from "../entity/app";
 import { AppDataSource } from ".";
+import Koa from "koa";
 import { Context } from "koa";
 import AuthMideWare from "../service/auth";
 import OrderService from "../service/order";
 import UserService from "../service/user";
 
-export async function openTrialOrder(ctx: Context & any) {
+export async function openTrialOrder(ctx: Koa.Context) {
     const { userId, tenantId, appId } = ctx.request.body;
 
     try {
@@ -43,7 +44,7 @@ export async function openTrialOrder(ctx: Context & any) {
     }
 }
 
-export async function getTrailOrder(ctx: Context) {
+export async function getTrailOrder(ctx: Koa.Context) {
     const {userId, tenantId} = ctx.request.query;
     try {
         const res = await AuthMideWare.getTrialOrder({userId, tenantId});
@@ -62,7 +63,7 @@ export async function getTrailOrder(ctx: Context) {
 }
 
 
-export async function generateTokenByCode(ctx: Context) {
+export async function generateTokenByCode(ctx: Koa.Context) {
     const params = ctx.request.query;
 
     const token = UserService.generateToken(params, 1000 * 60 * 60 * 24 * 29);
@@ -70,7 +71,7 @@ export async function generateTokenByCode(ctx: Context) {
     ctx.body = token;
 }
 
-export async function verityAppToken(ctx: Context & any) {
+export async function verityAppToken(ctx: Context) {
     const { token } = ctx.request.query;
     const res = await AuthMideWare.verityAppToken(token);
     ctx.status = 200;
@@ -79,7 +80,7 @@ export async function verityAppToken(ctx: Context & any) {
 
 
 
-export async function authorizeByJsonp(ctx: Context) {
+export async function authorizeByJsonp(ctx: Koa.Context) {
     const params = ctx.url.split('?')[1];
     ctx.set('Content-Type', 'application/javascript')
     const res = await AuthMideWare.genarateAuthJson(params);

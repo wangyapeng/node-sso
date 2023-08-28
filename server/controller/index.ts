@@ -1,9 +1,8 @@
 import { mysqlConfig, redisConfig } from "../../config"
 import { DataSource } from "typeorm"
-const cwd = process.cwd();
 
 const AppDataSource = new DataSource({
-    entities: [ cwd +"/entity/*{.js,.ts}"],
+    entities: [ "../entity/*{.js,.ts}"],
     ...mysqlConfig as any
 })
 

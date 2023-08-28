@@ -35,7 +35,7 @@
         "server/entity/*.ts",
         "server/middleware/*.ts",
         "exception.ts",
-        "app-prd.ts"
+        "app-bundle.ts"
       ],
       "exclude": ["node_modules", "dist","**/*.spec.ts"],
       "references": [{ "path": "./tsconfig.node.json" }]

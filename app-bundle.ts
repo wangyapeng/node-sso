@@ -1,9 +1,9 @@
-import { defaults } from './node_modules/argon2/argon2.d';
+import { defaults } from "./node_modules/argon2/argon2.d";
 
-import { Context, Next, Request, Response } from "koa";
+import { Context, Next, ParameterizedContext, Request, Response } from "koa";
 import Koa from "koa";
 const app = new Koa();
-import router from "./server/router/index";
+import router from "./server/router";
 import cookie from "koa-cookie";
 import koaBody from "koa-body";
 import verifyToken from "./server/middleware/verifyToken";
@@ -11,8 +11,10 @@ import catchError from "./server/middleware/catchError";
 import logger from "koa-logger";
 import cors from "koa2-cors";
 import fs from "fs";
-import koaConnect from 'koa-connect';
+import sendFile from 'koa-send';
 import koaStatic from "koa-static";
+//@ts-ignore
+import {render} from './www/server/entry-server.js';
 
 const excludeRoute = [
   "/",
@@ -25,15 +27,9 @@ const excludeRoute = [
   "authorizeByJsonp",
 ];
 
-const ssrUrl = [
-  "/",
-  "/login",
-  "/register"
-]
+const ssrUrl = ["/", "/login", "/register"];
 import path from "path";
-// import views from "koa-views";
 
-import { createServer as createViteServer } from "vite";
 const __dirname = path.resolve();
 const start = async () => {
   app.use(
@@ -58,44 +54,39 @@ const start = async () => {
 
   //@ts-ignore
   app.use(cookie.default());
-  // 创建 vite 服务
-  const viteServer = await createViteServer({
-    root: process.cwd(),
-    logLevel: 'error',
-    appType: 'custom',
-    server: {
-      middlewareMode: true,
-    },
-  });
 
-  // 注册 vite 的 Connect 实例作为中间件（注意：vite.middlewares 是一个 Connect 实例）
-  
+
+const __dirname = path.resolve();
+const resolve = (p: any) => path.resolve(__dirname, p);
+
+//同步读取文件
+const template = fs.readFileSync(resolve('./dist/www/client/index.html'), 'utf-8');
+const manifest = fs.readFileSync(resolve('./dist/www/client/ssr-manifest.json'),'utf-8');
+const clientRoot = resolve('./dist/www/client');
+
   app.use(router.routes()).use(router.allowedMethods());
 
-  app.use(koaConnect(viteServer.middlewares));
-  app.use(async (ctx: Koa.BaseContext,next: Next) => {
-    console.log(ctx.url)
-    await next()
-    
+  app.use(async (ctx: Koa.Context, next: Next) => {
+    await next();
+
     try {
-      // 1. 获取index.html
-      let template = fs.readFileSync(path.resolve(__dirname, 'index.html'), 'utf-8');
+       // 请求的是静态资源 或者/favicon.ico
+      if (ctx.path.startsWith('/assets')) {
+        //@ts-ignore
+        await sendFile(ctx, ctx.path, { root: clientRoot });
+        return;
+      }
 
-      // 2. 应用 Vite HTML 转换。这将会注入 Vite HMR 客户端，
-      template = await viteServer.transformIndexHtml(ctx.path, template);
+      const [renderedHtml, state, preloadLinks] = await render(ctx, manifest);
 
-      // 3. 加载服务器入口, vite.ssrLoadModule 将自动转换
-      const { render } = await viteServer.ssrLoadModule('/src/entry-server.ts');
-
-      //  4. 渲染应用的 HTML
-      const [renderedHtml, state] = await render(ctx, {});
-
-      const html = template.replace('<!--app-html-->', renderedHtml).replace('<!--pinia-state-->', state);
+      const html = template
+        .replace('<!--preload-links-->', preloadLinks)
+        .replace('<!--pinia-state-->', state)
+        .replace('<!--app-html-->', renderedHtml);
 
       ctx.type = 'text/html';
       ctx.body = html;
     } catch (e) {
-      viteServer && viteServer.ssrFixStacktrace(e);
       console.error(e.stack);
       ctx.throw(500, e.stack);
     }
@@ -103,7 +94,7 @@ const start = async () => {
 
   app.use(koaStatic(__dirname + "static"));
   app.use(koaStatic(__dirname + "src/assets"));
-  app.listen(8000, () => {
+  app.listen(9002, () => {
     console.log("Server is running");
   });
 };

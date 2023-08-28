@@ -7,17 +7,6 @@ import { authorizeByJsonp, generateTokenByCode, getTrailOrder, openTrialOrder, v
 import { getApplist } from '../controller/app.controller';
 const router = new Router();
 
-router.get('/', async(ctx: Context, next: Next) => {
-    await ctx.render('index')
-    await next()
-})
-
-router.get('/login', async(ctx: Context, next: Next) => {
-    await ctx.render('login')
-    await next()
-})
-
-
 router.post('/auth/login', UserController.login);
 router.get('/auth/logout', UserController.logout);
 router.post('/auth/register', UserController.register);

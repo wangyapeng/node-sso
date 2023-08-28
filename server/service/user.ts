@@ -1,3 +1,4 @@
+import Koa from "koa";
 import { User } from "../entity/user";
 import { AppDataSource } from "../controller";
 import { Tenant } from "../entity/tenant";
@@ -30,7 +31,7 @@ class UserService {
     }
   }
 
-  public static async login(ctx: Context, params: any) {
+  public static async login(ctx: Koa.Context, params: any) {
     const { name, email, password } = params;
 
     try {

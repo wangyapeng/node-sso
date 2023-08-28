@@ -1,6 +1,6 @@
 import { Context } from "koa";
 import * as argon2 from "argon2";
-
+import Koa from "koa";
 import { User } from "../entity/user";
 import { AppDataSource } from ".";
 import { tokenConfig } from "../../config";
@@ -12,7 +12,8 @@ import UserService from "../service/user";
 import jwt from "jsonwebtoken";
 
 export default class UserController {
-  public static async register(ctx: Context & any) {
+  public static async register(ctx: Koa.Context) {
+    console.log('--------> register')
     const userRepository = AppDataSource.getRepository(User);
     const newUser = new User();
     const { name, email, password } = ctx.request.body;
@@ -33,16 +34,13 @@ export default class UserController {
     ctx.body = user;
   }
 
-  public static async getUserInfo(ctx: Context) {
-    //@ts-ignore
+  public static async getUserInfo(ctx: Koa.Context) {
     const { id } = ctx.request.body;
-    //@ts-ignore
     const token = ctx.request.header["authorization"]
       .replace("Bear", "")
       .trim();
-    var decoded = jwt.verify(token, tokenConfig.secret);
+    var decoded = jwt.verify(token, tokenConfig.secret) as any;
     try {
-      //@ts-ignore
       const userInfo = await UserService.requestUserInfo(id || decoded.id);
       if (userInfo) {
         ctx.status = 200;
@@ -57,8 +55,8 @@ export default class UserController {
     }
   }
 
-  public static async login(ctx: Context) {
-    //@ts-ignore
+  public static async login(ctx: Koa.Context) {
+  
     const { name, email, password } = ctx.request.body;
     const res = await UserService.login(ctx, { name, email, password });
 
@@ -106,7 +104,7 @@ export default class UserController {
    * logout
    * @param ctx
    */
-  public static async logout(ctx: Context) {
+  public static async logout(ctx: Koa.Context) {
     ctx.cookies.set("login", "false", {
       path: "/", // 有效范围
       domain: "dq.com",
@@ -138,7 +136,7 @@ export default class UserController {
     };
   }
 
-  public static async verityToken(ctx: Context) {
+  public static async verityToken(ctx: Koa.Context) {
     try {
       const hasToken = ctx.request.header['authorization'] || ctx.request.query?.token;
       const bear = ctx.request.header['authorization'].replace('Bear','');
@@ -172,12 +170,10 @@ export default class UserController {
   /**
    * 刷新token
    */
-  public static async refreshToken(ctx: Context) {
-    //@ts-ignore
+  public static async refreshToken(ctx: Koa.Context) {
     const { token, refreshToken } = ctx.request.body;
     var decoded = jwt.verify(refreshToken, tokenConfig.secret) as any;
 
-    //@ts-ignore
     // token 的有效期为60分钟，过期需要刷新
     if (new Date(decoded.exp * 1000).getTime() > Date.now()) {
       const userRepository = AppDataSource.getRepository(User);

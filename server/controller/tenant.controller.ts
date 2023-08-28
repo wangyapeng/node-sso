@@ -1,9 +1,11 @@
+
+import Koa from "koa";
 import { Tenant } from "../entity/tenant";
 import { AppDataSource } from ".";
 import { Context } from "koa";
 import TenantService from "../service/tenant";
 
-export async function getTeanantInfo(ctx: Context) {
+export async function getTeanantInfo(ctx: Koa.Context) {
     const { userId, tenantId } = ctx.request.query;
     const repository = AppDataSource.getRepository(Tenant);
 
@@ -32,7 +34,7 @@ export async function getTeanantInfo(ctx: Context) {
     }
 }
 
-export async function putTenantInfo(ctx: Context & any) {
+export async function putTenantInfo(ctx: Koa.Context) {
     const body = ctx.request.body;
     const { id, userId } = ctx.request.query;
     try {
