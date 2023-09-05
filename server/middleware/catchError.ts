@@ -4,7 +4,6 @@ import Errors from '../exception'
 const catchError = () => async (ctx: Context, next: Next) => {
   try {
     await next();
-    console.error('🕷 -------->', ctx.url);
     if (ctx.status === 404) {
       throw new Errors.NotFound("未找到该路由", 404);
     }

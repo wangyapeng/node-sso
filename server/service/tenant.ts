@@ -1,5 +1,5 @@
 import { User } from "../entity/user";
-import { AppDataSource } from "../controller";
+import { AppDataSource } from "../../dataSource";
 import { Tenant } from "../entity/tenant";
 
 class TenantService {

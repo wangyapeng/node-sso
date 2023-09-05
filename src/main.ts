@@ -8,10 +8,11 @@ import './style.scss';
 import './theme.css'
 import bootstrap from 'bootstrap'
 import App from './App.vue';
+import MakeitCaptcha from 'makeit-captcha'
 
 
 export const createApp = () => {
   const app = createSSRApp(App);
-
+  app.use(MakeitCaptcha)
   return { app };
 };

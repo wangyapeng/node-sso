@@ -9,6 +9,9 @@
 import Main from './components/Main.vue'
 import Header2 from './components/Header2.vue'
 import Footer from './components/Footer.vue';
+import bootstrap from 'bootstrap';
+
+
 </script>
 
 <style>

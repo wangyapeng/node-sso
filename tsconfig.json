@@ -11,7 +11,7 @@
         "noImplicitAny": true,
         "strictNullChecks": false,
         "declaration": true,
-        // "declarationDir": "./dist/types",
+        "declarationDir": "./types",
         "declarationMap": true,
         "moduleResolution": "node",
         "baseUrl": ".",
@@ -35,7 +35,9 @@
         "server/entity/*.ts",
         "server/middleware/*.ts",
         "exception.ts",
-        "app-bundle.ts"
+        "dataSource.ts",
+        "app-bundle.ts", 
+        "server/entity/account.ts"      
       ],
       "exclude": ["node_modules", "dist","**/*.spec.ts"],
       "references": [{ "path": "./tsconfig.node.json" }]

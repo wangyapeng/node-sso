@@ -17,10 +17,10 @@ import koaStatic from "koa-static";
 import {render} from './www/server/entry-server.js';
 
 const excludeRoute = [
-  "/",
   "logout",
   "/*.js",
   "login",
+  "v1",
   "Token",
   "register",
   "verityAppToken",
@@ -29,9 +29,11 @@ const excludeRoute = [
 
 const ssrUrl = ["/", "/login", "/register"];
 import path from "path";
+import { startDataSource } from "./dataSource";
 
 const __dirname = path.resolve();
 const start = async () => {
+  await startDataSource()
   app.use(
     cors({
       origin: function (ctx: Koa.BaseContext) {
@@ -52,9 +54,12 @@ const start = async () => {
 
   app.use(koaBody());
 
+  app.use(verifyToken({
+    exclude: excludeRoute
+  }))
+
   //@ts-ignore
   app.use(cookie.default());
-
 
 const __dirname = path.resolve();
 const resolve = (p: any) => path.resolve(__dirname, p);
@@ -94,7 +99,7 @@ const clientRoot = resolve('./dist/www/client');
 
   app.use(koaStatic(__dirname + "static"));
   app.use(koaStatic(__dirname + "src/assets"));
-  app.listen(9002, () => {
+  app.listen(9999, () => {
     console.log("Server is running");
   });
 };

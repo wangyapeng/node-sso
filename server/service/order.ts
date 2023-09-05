@@ -1,5 +1,5 @@
 import { App } from "../entity/app";
-import { AppDataSource } from "../controller";
+import { AppDataSource } from "../../dataSource";
 import { Order, OrderType } from "../entity/order";
 
 

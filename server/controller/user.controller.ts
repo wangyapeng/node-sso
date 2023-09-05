@@ -1,8 +1,8 @@
 import { Context } from "koa";
-import * as argon2 from "argon2";
+import argon2 from "argon2";
 import Koa from "koa";
 import { User } from "../entity/user";
-import { AppDataSource } from ".";
+import { AppDataSource } from "../../dataSource";
 import { tokenConfig } from "../../config";
 import AuthMideWare from "../service/auth";
 import { Tenant } from "../entity/tenant";
@@ -13,7 +13,7 @@ import jwt from "jsonwebtoken";
 
 export default class UserController {
   public static async register(ctx: Koa.Context) {
-    console.log('--------> register')
+    console.log('--------> register', ctx.request.body)
     const userRepository = AppDataSource.getRepository(User);
     const newUser = new User();
     const { name, email, password } = ctx.request.body;
@@ -39,8 +39,16 @@ export default class UserController {
     const token = ctx.request.header["authorization"]
       .replace("Bear", "")
       .trim();
-    var decoded = jwt.verify(token, tokenConfig.secret) as any;
+    
+      if (!token) {
+          ctx.status = 200;
+          ctx.body = {
+            message: "未查询到信息"
+          };
+        return;
+      }
     try {
+      var decoded = jwt.verify(token, tokenConfig.secret) as any;
       const userInfo = await UserService.requestUserInfo(id || decoded.id);
       if (userInfo) {
         ctx.status = 200;
@@ -56,48 +64,33 @@ export default class UserController {
   }
 
   public static async login(ctx: Koa.Context) {
-  
     const { name, email, password } = ctx.request.body;
     const res = await UserService.login(ctx, { name, email, password });
+    const { id, token }: any = res.data;
+    ctx.cookies.set("login", "true", {
+      domain: "dq.com",
+      path: "/", // 有效范围
+      httpOnly: false, // 只能在服务器修改
+      maxAge: 24 * 60 * 60 * 1000,
+    });
 
-    try {
-      if (!res.result) {
-        ctx.status = 401;
-        ctx.body = res.message;
-        return
-      } else {
-        const { id, token }: any = res.data;
-        ctx.cookies.set("login", "true", {
-          domain: "dq.com",
-          path: "/", // 有效范围
-          httpOnly: false, // 只能在服务器修改
-          maxAge: 24 * 60 * 60 * 1000,
-        });
+    ctx.cookies.set("userId", `${id}`, {
+      domain: "dq.com",
+      path: "/", // 有效范围
+      httpOnly: false, // 只能在服务器修改
+      maxAge: 24 * 60 * 60 * 1000,
+    });
 
-        ctx.cookies.set("userId", `${id}`, {
-          domain: "dq.com",
-          path: "/", // 有效范围
-          httpOnly: false, // 只能在服务器修改
-          maxAge: 24 * 60 * 60 * 1000,
-        });
+    ctx.cookies.set("userToken", `${token}`, {
+      domain: "dq.com",
+      path: "/", // 有效范围
+      httpOnly: false, // 只能在服务器修改
+      maxAge: 24 * 60 * 60 * 1000,
+    });
 
-        ctx.cookies.set("userToken", `${token}`, {
-          domain: "dq.com",
-          path: "/", // 有效范围
-          httpOnly: false, // 只能在服务器修改
-          maxAge: 24 * 60 * 60 * 1000,
-        });
-
-        ctx.status = 200;
-        ctx.body = res.data;
-        return
-      }
-    } catch (e) {
-      console.error(e);
-      ctx.status = 400;
-      ctx.body = e.message;
-      return
-    }
+    ctx.status = 200;
+    ctx.body = res.data;
+    return
   }
 
   /**
@@ -129,6 +122,12 @@ export default class UserController {
       httpOnly: false, // 只能在服务器修改
       maxAge: 0,
     });
+    ctx.cookies.set("appUserToken", null, {
+      path: "/", // 有效范围
+      domain: "dudu.dq.com",
+      httpOnly: false, // 只能在服务器修改
+      maxAge: 0,
+    });
     ctx.status = 200;
     ctx.body = {
       success: true,
@@ -138,20 +137,20 @@ export default class UserController {
 
   public static async verityToken(ctx: Koa.Context) {
     try {
-      const hasToken = ctx.request.header['authorization'] || ctx.request.query?.token;
-      const bear = ctx.request.header['authorization'].replace('Bear','');
-      const token = bear.trim() || ctx.request.query?.token;
-      if (!token) {
-        ctx.status = 401;
-        ctx.code = 401;
-        ctx.body = {
-          success: false,
-          errorMsg: "未发现token信息",
-        };
-        return
-      }
-      var ret = await AuthMideWare.vertifyToken(token);
-      if (ret) {
+      // const hasToken = ctx.request.header['authorization'] || ctx.request.query?.token;
+      // const bear = ctx.request.header['authorization'].replace('Bear','');
+      // const token = bear.trim() || ctx.request.query?.token;
+      // if (!token) {
+      //   ctx.status = 401;
+      //   ctx.code = 401;
+      //   ctx.body = {
+      //     success: false,
+      //     errorMsg: "未发现token信息",
+      //   };
+      //   return
+      // }
+      // var ret = await AuthMideWare.vertifyToken(token);
+      if (true) {
         ctx.status = 200;
         ctx.body = {
           success: true,

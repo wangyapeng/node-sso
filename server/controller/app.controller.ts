@@ -1,5 +1,5 @@
 import { App } from "../entity/app";
-import { AppDataSource } from ".";
+import { AppDataSource } from "../../dataSource";
 import { Context } from "koa";
 import Koa from "koa";
 

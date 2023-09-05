@@ -1,7 +1,7 @@
 
 import Koa from "koa";
 import { Tenant } from "../entity/tenant";
-import { AppDataSource } from ".";
+import { AppDataSource } from "../../dataSource";
 import { Context } from "koa";
 import TenantService from "../service/tenant";
 

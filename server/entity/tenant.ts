@@ -1,12 +1,10 @@
-import { JoinColumn, JoinTable, OneToMany, OneToOne, ManyToMany } from "typeorm";
-import { Account } from "./account";
+import { JoinColumn, JoinTable, OneToMany, OneToOne, ManyToOne, ManyToMany } from "typeorm";
 import { User } from "./user";
 
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
-
 @Entity()
-export class Tenant {
+class Tenant {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -37,9 +35,32 @@ export class Tenant {
   @Column({default: ""})
   telephone: string;
 
-  // @OneToMany(type => Account, account => account.tenant)
-  // accounts: Account[]
+  @OneToMany(type => Account, account => account.tenant)
+  accounts: Account[]
 
   @Column({default: ""})
   address: string;
+}
+
+
+@Entity()
+class Account {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  name: string;
+
+  @Column()
+  edition: number;
+
+  //@ts-ignore
+  //@ts-nocheck
+  @ManyToOne(type => Tenant, tenant => tenant.accounts)
+  tenant: Tenant
+}
+
+export {
+  Tenant,
+  Account
 }

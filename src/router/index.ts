@@ -30,5 +30,15 @@ export const createRouter = (type: "client" | "server"): Router =>
         },
         component: () => import("../pages/login.vue"),
       },
+      {
+        path: "/register",
+        name: "register",
+        meta: {
+          title: "注册",
+          keepAlive: true,
+          requireAuth: false,
+        },
+        component: () => import("../pages/register.vue"),
+      },
     ],
   });

@@ -20,7 +20,7 @@ const mysqlConfig = {
 };
 
 const tokenConfig = {
-  secret: "xxxx33323-secret-key",
+  secret: "hello_jwt_et325325",
 };
 
 const clientKey = {

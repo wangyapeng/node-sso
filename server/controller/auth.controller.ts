@@ -1,5 +1,5 @@
 import { App } from "../entity/app";
-import { AppDataSource } from ".";
+import { AppDataSource, RedisDataSource } from "../../dataSource";
 import Koa from "koa";
 import { Context } from "koa";
 import AuthMideWare from "../service/auth";
@@ -65,6 +65,17 @@ export async function getTrailOrder(ctx: Koa.Context) {
 
 export async function generateTokenByCode(ctx: Koa.Context) {
     const params = ctx.request.query;
+    const { code } = params;
+    const res =  await RedisDataSource.get(`${code}`);
+
+    if (!res) {
+        ctx.status = 401;
+        ctx.body = {
+            error: true,
+            errorMessage: "code超时"
+        };
+        return
+    }
 
     const token = UserService.generateToken(params, 1000 * 60 * 60 * 24 * 29);
     ctx.status = 200;
@@ -73,6 +84,7 @@ export async function generateTokenByCode(ctx: Koa.Context) {
 
 export async function verityAppToken(ctx: Context) {
     const { token } = ctx.request.query;
+    console.log('------> token', token)
     const res = await AuthMideWare.verityAppToken(token);
     ctx.status = 200;
     ctx.body = res
